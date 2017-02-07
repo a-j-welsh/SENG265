@@ -1,0 +1,32 @@
+size:0
+size:0
+********** insert(dynamic_array & p, int i)
+********** case 1: range error
+exception caught at -1
+exception caught at 1
+size:0
+********** case 2: parameter array empty
+size:0
+********** case 3: array empty
+size:2
+	size:2 elements:0 2 
+********** case 4: array non-empty; new blocks not needed
+size:4
+	size:4 elements:0 0 2 2 
+********** case 5: array non-empty; new blocks needed
+***** case 5.a: insert position at start of block
+size:11
+	size:5 elements:1 3 5 7 9 
+	size:2 elements:0 2 
+	size:4 elements:11 13 15 17 
+***** case 5.b: insert position at middle of block
+size:11
+	size:5 elements:1 3 5 7 9 
+	size:2 elements:11 13 
+	size:2 elements:0 2 
+	size:2 elements:15 17 
+***** case 5.c: insert position after end of block
+size:11
+	size:5 elements:1 3 5 7 9 
+	size:4 elements:11 13 15 17 
+	size:2 elements:0 2 
