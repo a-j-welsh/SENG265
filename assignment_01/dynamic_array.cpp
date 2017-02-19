@@ -243,43 +243,80 @@ void Dynamic_array::remove(int start, int end) {						//-
     Block_position end_position=find_block(end);
     int start_ind = start % BLOCK_SIZE;
     int end_ind = end % BLOCK_SIZE;
+    
     if(end_position.block_p==start_position.block_p){
     //4a takes out entire block
         if(start_ind==0 && end_ind==BLOCK_SIZE-1){
     //(Block * pre_start_p, Block * start_p, Block * end_p)
-            remove_blocks(start_position.block_p,start_position.block_p,end_position.block_p);
+            remove_blocks(start_position.pre_block_p,start_position.block_p,end_position.block_p);
         }
     //4b removes portion of a block
         else{
-            for (int i = 0; i < BLOCK_SIZE - end_position.i; i++) {
-                start_position.block_p->a[i + start_position.i] = start_position.block_p->a[i + end_position.i];
+            for (int j = 0; j < BLOCK_SIZE - end_position.i; j++) {
+                start_position.block_p->a[j + start_position.i] = start_position.block_p->a[j + end_position.i];
             }
             start_position.block_p->size -= (end_position.i - start_position.i);
+            end_position.block_p->size-= (end_position.i - start_position.i);
         }
         size -= (end - start);
         return;
     }
     // case 5: start and end are in different blocks
     if (start_position.block_p != end_position.block_p){
-            remove_blocks(start_position.block_p,start_position.block_p->next_p, end_position.pre_block_p);
-        }
-        //5b end is mid block
-        int moveFrom = 0;
-        for(int moveTo = end_ind; moveTo<BLOCK_SIZE; moveTo++){
-            end_position.block_p->a[moveFrom]=end_position.block_p->a[moveTo];
-            moveFrom++;
-        }
-        end_position.block_p->size -= (end_ind);
-            remove_blocks(start_position.pre_block_p,start_position.block_p,start_position.block_p);
-            
-        }
-            remove_blocks(end_position.pre_block_p,end_position.block_p,end_position.block_p);
-        }
-        size-=(end-start);
-        return;
-        
-        
     }
+
+        if(start_ind==0){
+            //5a start is at begining of block and end is at end of seperate block
+            if(end_ind==BLOCK_SIZE-1)
+            {
+                remove_blocks(start_position.pre_block_p,start_position.block_p,end_position.block_p);
+            
+            }else
+            //5b start is at beginning of block and end is mid block.
+            {
+                remove_blocks(start_position.pre_block_p,start_position.block_p,end_position.pre_block_p);
+                for(int j = 0; j < (end_position.block_p->size - end_position.i); j++ )
+                {
+                    end_position.block_p->a[j] = end_position.block_p->a[ j + end_position.i];
+                }
+                end_position.block_p->size-=end_position.i;
+            }
+            size-=(end-start);
+            return;
+        }
+    
+        else
+        {
+            //5c start is not at beginning of block and end is at end of seperate block
+            if(end_ind==BLOCK_SIZE-1)
+            {
+                remove_blocks(end_position.pre_block_p,start_position.block_p->next_p,end_position.block_p);
+                
+                
+            }else
+            //5d start is not at beginning of block and end is not in the end of seperate block
+            {
+                
+                for(int i = 0; i < (end_position.block_p->size - end_position.i); i++ )
+                {
+                    end_position.block_p->a[i] = end_position.block_p->a[ i + end_position.i];
+                }
+                end_position.block_p->size-=end_position.i;
+                if(start_position.block_p!=end_position.pre_block_p)
+                {
+                    remove_blocks(start_position.block_p, start_position.block_p->next_p, end_position.pre_block_p);
+                }
+
+                
+                
+            }
+            start_position.block_p->size=start_position.i;
+            size-=(end-start);
+            return;
+        }
+    
+    
+
  
 
 }												//-
