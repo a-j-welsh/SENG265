@@ -1,0 +1,27 @@
+********** insert(int x, int i)
+********** create empty array
+size:0
+get_size():0
+********** case 1: range error
+exception caught at 1
+********** case 2: empty array
+size:1
+	size:1 elements:3 
+get_size():1
+********** case 3: non-empty array; new block not needed
+***** insert before start
+size:2
+	size:2 elements:1 3 
+***** insert after end
+size:3
+	size:3 elements:1 3 5 
+********** case 4: non-empty array; new block needed
+***** case 4.a: insert x into old block
+size:6
+	size:5 elements:1 3 5 7 9 
+	size:1 elements:99 
+***** case 4.b: insert x into new block
+size:7
+	size:5 elements:88 1 3 5 7 
+	size:1 elements:9 
+	size:1 elements:99 
