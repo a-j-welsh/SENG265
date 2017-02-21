@@ -14,15 +14,12 @@ Dynamic_array::Dynamic_array() {								//-
 //Create an copy of the elemnts in d into another array
 //Preconditions: There is enough dynamic memory available and d is not *this
 Dynamic_array::Dynamic_array(Dynamic_array & d) {						//-
-    if(&d==*this){
-        throw Subscript_range_exception;
-        return;
+    head_p=NULL;
+    size=0;
+    for(int i =0 ; i<d.size;i++){
+        insert([i],i);
     }
-    else{
-        size=d.size;
-        
-        
-    }
+    
     
     
 }												//-
@@ -30,9 +27,11 @@ Dynamic_array::Dynamic_array(Dynamic_array & d) {						//-
 //Copy the contents of d. Return a reference to this object
 //Preconditions:There is enough dynamic memory
 Dynamic_array &Dynamic_array::operator=(Dynamic_array & d) {					//-
-    
-    
-    
+    head_p=NULL;
+    size=0;
+    for(int i =0 ; i<d.size;i++){
+        insert([i],i);
+    }
     
 	return *this;										//-
 }												//-
@@ -41,10 +40,14 @@ Dynamic_array &Dynamic_array::operator=(Dynamic_array & d) {					//-
 //Delete all memory dynamically allocated by this object
 Dynamic_array::~Dynamic_array() {								//-
     Block * start_block=find_block(0);
-    Block * end_block=find_block(size-1);
-    remove_blocks(NULL,start_block.block_p,end_block.block_p);
-    head_p=NULL;
+    Block * end_block=find_block(size);
+    if(size>0)
+    {
+        remove_blocks(NULL,start_block.block_p,end_block.block_p);
+    }
     size=0;
+    delete head_p;
+    
     
     
     
