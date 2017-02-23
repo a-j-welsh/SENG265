@@ -1,0 +1,26 @@
+size:0
+size:0
+size:1
+	size:1 elements:1 
+size:0
+size:3
+	size:3 elements:2 4 6 
+size:3
+	size:3 elements:2 4 6 
+size:3
+	size:3 elements:2 99 6 
+size:3
+	size:3 elements:2 4 6 
+size:0
+size:0
+size:1
+	size:1 elements:99 
+size:0
+size:3
+	size:3 elements:2 4 6 
+size:3
+	size:3 elements:2 4 6 
+size:3
+	size:3 elements:2 99 6 
+size:3
+	size:3 elements:2 4 6 
