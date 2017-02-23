@@ -14,7 +14,7 @@ Dynamic_array::Dynamic_array() {								//-
 //Create an copy of the elemnts in d into another array
 //Preconditions: There is enough dynamic memory available and d is not *this
 Dynamic_array::Dynamic_array(Dynamic_array & d) {						//-
-    Block * new_head_p;
+    Block * new_head_p= new Block;
     new_head_p = copy_blocks(d.head_p);
     size=d.size;
     
@@ -25,9 +25,9 @@ Dynamic_array::Dynamic_array(Dynamic_array & d) {						//-
 Dynamic_array &Dynamic_array::operator=(Dynamic_array & d) {					//-
     if(size>0)
     {
-        Block_position  start_p = find_block(1);
-        Block_position  end_p = find_block(size-1);
-        remove_blocks(NULL,start_p.block_p,end_p.block_p);
+        Block_position  start = find_block(0);
+        Block_position  end = find_block(size-1);
+        remove_blocks(NULL,start.block_p,end.block_p);
     }
     head_p = copy_blocks(d.head_p);
     size=d.size;
@@ -40,9 +40,9 @@ Dynamic_array &Dynamic_array::operator=(Dynamic_array & d) {					//-
 Dynamic_array::~Dynamic_array() {								//-
     if(size>0)
     {
-        Block_position start_block=find_block(0);
-        Block_position end_block=find_block(size-1);
-        remove_blocks(NULL,start_block.block_p,end_block.block_p);
+        Block_position start=find_block(0);
+        Block_position end=find_block(size-1);
+        remove_blocks(NULL,start.block_p,end.block_p);
     }
     size=0;
     delete head_p;
