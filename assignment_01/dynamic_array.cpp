@@ -14,24 +14,23 @@ Dynamic_array::Dynamic_array() {								//-
 //Create an copy of the elemnts in d into another array
 //Preconditions: There is enough dynamic memory available and d is not *this
 Dynamic_array::Dynamic_array(Dynamic_array & d) {						//-
-    head_p=NULL;
-    size=0;
-    for(int i =0 ; i<d.size;i++){
-        insert([i],i);
-    }
-    
-    
+    Block * new_head_p;
+    new_head_p = copy_blocks(d.head_p);
+    size=d.size;
     
 }												//-
 												//-
 //Copy the contents of d. Return a reference to this object
 //Preconditions:There is enough dynamic memory
 Dynamic_array &Dynamic_array::operator=(Dynamic_array & d) {					//-
-    head_p=NULL;
-    size=0;
-    for(int i =0 ; i<d.size;i++){
-        insert([i],i);
+    if(size>0)
+    {
+        Block_position  start_p = find_block(1);
+        Block_position  end_p = find_block(size-1);
+        remove_blocks(NULL,start_p.block_p,end_p.block_p);
     }
+    head_p = copy_blocks(d.head_p);
+    size=d.size;
     
 	return *this;										//-
 }												//-
@@ -39,10 +38,10 @@ Dynamic_array &Dynamic_array::operator=(Dynamic_array & d) {					//-
 
 //Delete all memory dynamically allocated by this object
 Dynamic_array::~Dynamic_array() {								//-
-    Block * start_block=find_block(0);
-    Block * end_block=find_block(size);
     if(size>0)
     {
+        Block_position start_block=find_block(0);
+        Block_position end_block=find_block(size-1);
         remove_blocks(NULL,start_block.block_p,end_block.block_p);
     }
     size=0;
