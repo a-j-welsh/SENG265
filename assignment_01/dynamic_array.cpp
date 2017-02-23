@@ -28,9 +28,19 @@ Dynamic_array &Dynamic_array::operator=(Dynamic_array & d) {					//-
         Block_position  start = find_block(0);
         Block_position  end = find_block(size-1);
         remove_blocks(NULL,start.block_p,end.block_p);
+        
+
     }
-    head_p = copy_blocks(d.head_p);
-    size=d.size;
+    if(d.size==0){
+        head_p=NULL;
+    }
+    else{
+        head_p = copy_blocks(d.head_p);
+        size=d.size;
+        
+    }
+    
+    
     
 	return *this;										//-
 }												//-
