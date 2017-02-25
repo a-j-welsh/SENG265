@@ -11,47 +11,31 @@ Dynamic_array::Dynamic_array() {								//-
 	size = 0;										//-
 }												//-
 												//-
-//Create an copy of the elements in d into another array
-//Preconditions: There is enough dynamic memory available and d is not *this
+
 Dynamic_array::Dynamic_array(Dynamic_array & d) {						//-
     head_p = copy_blocks(d.head_p);
     size=d.size;
     
 }												//-
 												//-
-//Copy the contents of d. Return a reference to this object
-//Preconditions:There is enough dynamic memory
-Dynamic_array &Dynamic_array::operator=(Dynamic_array & d) {					//-
-    if(size>0)
-    {
-        Block_position  start = find_block(0);
-        Block_position  end = find_block(size-1);
-        remove_blocks(copy_blocks(d.head_p),start.block_p,end.block_p);
-        
 
+Dynamic_array &Dynamic_array::operator=(Dynamic_array & d) {					//-
+    if(size>0){
+        Block_position end=find_block(size);
+        remove_blocks(NULL,head_p,end.block_p);
     }
-        head_p = copy_blocks(d.head_p);
-        size=d.size;
-    
-    
-    
+    head_p = copy_blocks(d.head_p);
+	size=d.size;
 	return *this;										//-
 }												//-
 												//-
 
 //Delete all memory dynamically allocated by this object
 Dynamic_array::~Dynamic_array() {								//-
-    if(size>0)
-    {
-        Block_position start=find_block(0);
-        Block_position end=find_block(size-1);
-        remove_blocks(NULL,start.block_p,end.block_p);
+    if(size>0){
+        Block_position end=find_block(size);
+        remove_blocks(NULL,head_p,end.block_p);
     }
-    size=0;
-    delete head_p;
-    
-    
-    
     
 }												//-
 												//-
@@ -158,75 +142,60 @@ void Dynamic_array::insert(int x, int i) {							//-
 												//-
 void Dynamic_array::insert(Dynamic_array &p, int i) {						//-
 	// case 1: range error									//-
-    if (i < 0 || i > size) {
-        throw Subscript_range_exception();
-    }
+	if (i < 0 || i > size) {
+		throw Subscript_range_exception();
+	}
 	// case 2: parameter array empty							//-
-    if(p.size==0)
-        return;
+	if(p.size == 0){
+ 		return;
+	}
     
 	// case 3: array empty									//-
-    if(size==0)
-    {
-        Block * copy_p = copy_blocks(p.head_p);
-        insert_blocks(NULL,copy_p);
-        size += copy_p->size;
-        return;
-    }
+	if(size == 0){
+		Block * copy_p = copy_blocks(p.head_p);
+		insert_blocks(NULL,copy_p);
+		size += copy_p->size;
+		return;
+	}
 
 	// find target block and index								//-
 	Block_position position = find_block(i);						//-
 	// case 4: array non-empty; new blocks not needed					//-
-    if (size % BLOCK_SIZE !=0 && p.size+(size%BLOCK_SIZE) <= BLOCK_SIZE) {
-                for (int j = 0; j < p.size; j++)
-        {
-            position.block_p->a[i+j+p.size] = position.block_p->a[i+j];
-            position.block_p->a[i+j] = p[j];
-          
-        }
-    
-    
-        position.block_p->size += p.size;
-        size += p.size;
-        return;
-
-    }
+	if (size % BLOCK_SIZE != 0 && p.size+(size%BLOCK_SIZE) <= BLOCK_SIZE) {
+		for (int j = 0; j < p.size; j++){
+			position.block_p->a[i+j+p.size] = position.block_p->a[i+j];
+			position.block_p->a[i+j] = p[j];
+		}
+		position.block_p->size += p.size;
+		size += p.size;
+		return;
 	// case 5: array non-empty; new blocks needed						//-
-    else if((size%BLOCK_SIZE)+p.size>BLOCK_SIZE)
-    {
-        
+	}else if((size%BLOCK_SIZE)+p.size>BLOCK_SIZE){
 		// copy p									//-
 		Block * copy_p = copy_blocks(p.head_p);						//-
 		// case 5.a: insert position at start of block					//-
-        if(position.i%BLOCK_SIZE==0){
-            insert_blocks(position.pre_block_p,copy_p);
-            size+=p.size;
-            return;
-        }
+		if(position.i%BLOCK_SIZE==0){
+			insert_blocks(position.pre_block_p,copy_p);
 		// case 5.b: insert position at middle of block					//-
-        if(position.block_p->size - (i % BLOCK_SIZE) != 0){
-            Block * split_block=new Block;
-            split_block->size = position.block_p->size - (i % 5);
-            for (int j = (i%BLOCK_SIZE); j <= BLOCK_SIZE; j++){
-                split_block->a[j-(i%BLOCK_SIZE)] = position.block_p->a[j];
-            }
-            insert_blocks(position.block_p, copy_p);
-            insert_blocks(copy_p, split_block);
-            position.block_p->size -= i % BLOCK_SIZE;
-            size += p.size;
-            return;
-
-            
-        }
+		}else if(position.block_p->size - (i % BLOCK_SIZE) != 0){
+			Block * split_block = new Block;
+			split_block->size = position.block_p->size - (i % BLOCK_SIZE);
+			for (int j = (i%BLOCK_SIZE); j <= BLOCK_SIZE; j++){
+				split_block->a[j-(i%BLOCK_SIZE)] = position.block_p->a[j];
+			}
+			insert_blocks(position.block_p, copy_p);
+			insert_blocks(copy_p, split_block);
+			position.block_p->size -= i % BLOCK_SIZE;
+		}
 		// case 5.c: insert position after end of block					//-
-        if(position.block_p->size - (i % BLOCK_SIZE) == 0){
-            insert_blocks(position.block_p,copy_p);
-            size+=p.size;
-            return;
-            
-        }
+		else if(position.block_p->size - (i % BLOCK_SIZE) == 0){
+			insert_blocks(position.block_p,copy_p);
+			
+		}
 		// update total size								//-
-    }
+		size += p.size;
+		return;
+	}
 }												//-
 												//-
 void Dynamic_array::remove(int i) {								//-
@@ -238,121 +207,90 @@ void Dynamic_array::remove(int i) {								//-
 	Block_position position = find_block(i);
 	// case 2: block size == 1								//-
 	if (position.block_p->size == 1) {
-
 		Block * pre_block_p = position.pre_block_p;
 		Block * block_start_p = position.block_p;
 		Block * block_end_p = position.block_p;
 		remove_blocks(pre_block_p, block_start_p, block_end_p);
-		size--;
-	}
 	// case 3: block size > 1								//-
-	else if (position.block_p->size > 1) {
-		// loop throughout all elements after i, replace element preceding them
+	}else{
 		for (int j = i ; j < position.block_p->size; j++) {
 			position.block_p->a[j] = position.block_p->a[j+1];
-		};
-		position.block_p->size--; // update block size
-		size--; // update array size
+		}
+		position.block_p->size--;
 	}
 	// update total size									//-
+	size--;
 
 }												//-
 												//-
 void Dynamic_array::remove(int start, int end) {						//-
-    // case 1: range error
-    if (start < 0 || end > get_size() || start>end) {
-        throw Subscript_range_exception();
-        return;
-    }
-    // case 2: empty array
-    if(size==0){
-        return;
-    }
-    // case 3:start and end are equal
-    if(end-start==0)
-        return;
-    //case 4:start and end are in same block
-    // find target blocks and index
-    Block_position start_position=find_block(start);
-    Block_position end_position=find_block(end);
-    int start_ind = start % BLOCK_SIZE;
-    int end_ind = end % BLOCK_SIZE;
+	// case 1: range error
+	if (start < 0 || end > get_size() || start>end) {
+		throw Subscript_range_exception();
+		return;
+	}
+	// case 2: empty array
+	if(head_p == NULL){
+		return;
+	}
+	// case 3:start = end
+	if(end-start == 0){
+		return;
+	}
     
-    if(end_position.block_p==start_position.block_p){
-    //4a takes out entire block
-        if(start_ind==0 && end_ind==BLOCK_SIZE-1){
-    //(Block * pre_start_p, Block * start_p, Block * end_p)
-            remove_blocks(start_position.pre_block_p,start_position.block_p,end_position.block_p);
-        }
-    //4b removes portion of a block
-        else{
-            for (int j = 0; j < BLOCK_SIZE - end_position.i; j++) {
-                start_position.block_p->a[j + start_position.i] = start_position.block_p->a[j + end_position.i];
-            }
-            start_position.block_p->size -= (end_position.i - start_position.i);
-            end_position.block_p->size-= (end_position.i - start_position.i);
-        }
-        size -= (end - start);
-        return;
-    }
-    // case 5: start and end are in different blocks
-    if (start_position.block_p != end_position.block_p){
-    }
-
-        if(start_ind==0){
-            //5a start is at begining of block and end is at end of seperate block
-            if(end_ind==BLOCK_SIZE-1)
-            {
-                remove_blocks(start_position.pre_block_p,start_position.block_p,end_position.block_p);
-            
-            }else
-            //5b start is at beginning of block and end is mid block.
-            {
-                remove_blocks(start_position.pre_block_p,start_position.block_p,end_position.pre_block_p);
-                for(int j = 0; j < (end_position.block_p->size - end_position.i); j++ )
-                {
-                    end_position.block_p->a[j] = end_position.block_p->a[ j + end_position.i];
-                }
-                end_position.block_p->size-=end_position.i;
-            }
-            size-=(end-start);
-            return;
-        }
-    
-        else
-        {
-            //5c start is not at beginning of block and end is at end of seperate block
-            if(end_ind==BLOCK_SIZE-1)
-            {
-                remove_blocks(end_position.pre_block_p,start_position.block_p->next_p,end_position.block_p);
-                
-                
-            }else
-            //5d start is not at beginning of block and end is not in the end of seperate block
-            {
-                
-                for(int i = 0; i < (end_position.block_p->size - end_position.i); i++ )
-                {
-                    end_position.block_p->a[i] = end_position.block_p->a[ i + end_position.i];
-                }
-                end_position.block_p->size-=end_position.i;
-                if(start_position.block_p!=end_position.pre_block_p)
-                {
-                    remove_blocks(start_position.block_p, start_position.block_p->next_p, end_position.pre_block_p);
-                }
-
-                
-                
-            }
-            start_position.block_p->size=start_position.i;
-            size-=(end-start);
-            return;
-        }
-    
-    
-
- 
-
+	// find target blocks and index
+	Block_position start_position = find_block(start);
+	Block_position end_position = find_block(end);
+	int start_ind = start % BLOCK_SIZE;
+	int end_ind = end % BLOCK_SIZE;
+	//case 4:start block = end block
+	if(end_position.block_p == start_position.block_p){
+		//4a remove entire block
+		if(start_ind == 0 && end_ind == BLOCK_SIZE-1){
+		remove_blocks(start_position.pre_block_p,start_position.block_p,end_position.block_p);
+		}
+		//4b remove block section
+		else{
+			for (int j = 0; j < BLOCK_SIZE - end_position.i; j++) {
+				start_position.block_p->a[j + start_position.i] = start_position.block_p->a[j + end_position.i];
+			}
+			start_position.block_p->size -= (end_position.i - start_position.i);
+		}
+	}
+	// case 5: start block != end block
+	if (start_position.block_p != end_position.block_p){
+		if(start_ind == 0){
+			//5a remove start block through to end block
+			if(end_ind == BLOCK_SIZE-1){
+				remove_blocks(start_position.pre_block_p,start_position.block_p,end_position.block_p);
+			//5b remove start block through to block before end block 
+			}else{
+				remove_blocks(start_position.pre_block_p,start_position.block_p,end_position.pre_block_p);
+				for(int j = 0; j < (end_position.block_p->size - end_position.i); j++ ){
+					end_position.block_p->a[j] = end_position.block_p->a[ j + end_position.i];
+				}
+				end_position.block_p->size -= end_position.i;
+			}
+		}else{
+			//5c remove all blocks after start block
+			if(end_ind == end_position.block_p->size){
+				remove_blocks(end_position.pre_block_p,start_position.block_p->next_p,end_position.block_p);
+			//5d remove all blocks after start block except end block
+			}else{
+				for(int i = 0; i < (end_position.block_p->size - end_position.i); i++ ){
+					end_position.block_p->a[i] = end_position.block_p->a[ i + end_position.i];
+				}
+				end_position.block_p->size -= end_position.i;
+				if(start_position.block_p!=end_position.pre_block_p){
+					remove_blocks(start_position.block_p, start_position.block_p->next_p, end_position.pre_block_p);
+				}
+			}
+			start_position.block_p->size=start_position.i;
+		}	
+	}
+	//update total size
+	size -= (end - start);
+	return;
 }												//-
 												//-
 // ********** private functions **********							//-
