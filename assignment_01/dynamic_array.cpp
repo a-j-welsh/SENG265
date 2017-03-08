@@ -26,7 +26,7 @@ Dynamic_array &Dynamic_array::operator=(Dynamic_array & d) {					//-
     }
     head_p = copy_blocks(d.head_p);
 	size=d.size;
-	return *this;										//-
+    return *this;										//-
 }												//-
 												//-
 

@@ -10,6 +10,7 @@ preconditions
 '''
 
 # process the command line arguments
+# pylint: disable=all
 if len(sys.argv) != 4:
 	print >> sys.stderr, 'Syntax: ' + sys.argv[0] + ' x0 y0 s'
 	sys.exit(1)
